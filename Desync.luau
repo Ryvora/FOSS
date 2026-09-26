@@ -1,11 +1,10 @@
--- LOADSTRING:
--- local Desync = loadstring(game:HttpGet("ryvora.github.io/FOSS/Desync.luau"))()
 local Desync = {
 	origChar = nil,
 	clone = nil,
 	destroyingConn = nil,
 	desyncHighlight = nil,
 	freezer = nil,
+	op = nil,
 		
 	transparencies = {
 			
@@ -29,10 +28,10 @@ function Desync.start(allowCloneRespawn)
 	Desync.origChar = char
 	
 	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
-	local ocf = root.CFrame
+	Desync.op = root.CFrame
 	
 	Desync.freezer = Svc.Run.Heartbeat:Connect(function()
-		root.CFrame = ocf -- CFrame Freeze
+		root.CFrame = Desync.op -- CFrame Freeze
 		if Desync.clone.Parent == nil then
 			if allowCloneRespawn then
 				local cloneRoot = Desync.clone:FindFirstChild("HumanoidRootPart") or Desync.clone.PrimaryPart
@@ -91,21 +90,15 @@ function Desync.start(allowCloneRespawn)
 end
 
 function Desync.setOrigPosition(posOrCFrame)
-	if Desync.origChar == nil then return end
-
-	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
 	if typeof(posOrCFrame) == "Vector3" then
-		root.CFrame = CFrame.new(pos)
+		Desync.op = CFrame.new(pos)
 	else
-		root.CFrame = posOrCFrame
+		Desync.op = posOrCFrame
 	end
 end
 
 function Desync.moveOrigPosition(vec)
-	if Desync.origChar == nil then return end
-
-	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
-	root.CFrame = CFrame.new(root.CFrame + vec)
+	Desync.op = CFrame.new(Desync.op + vec)	
 end
 
 function Desync.setOrigTransparency(value)
