@@ -186,6 +186,6 @@ function Desync.stop(viaDestroy)
 	Desync.freezer:Disconnect()
 end
 
-_G.RyvoraDesync = Desync --_G.RyvoraDesync or Desync
+_G.RyvoraDesync = _G.RyvoraDesync or Desync
 
 return _G.RyvoraDesync
