@@ -5,6 +5,8 @@ local Desync = {
 	desyncHighlight = nil,
 	freezer = nil,
 	op = nil,
+	update = false,
+	reanchorTime = nil,
 		
 	transparencies = {
 			
@@ -30,8 +32,26 @@ function Desync.start(allowCloneRespawn)
 	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
 	Desync.op = root.CFrame
 	
-	Desync.freezer = Svc.Run.Heartbeat:Connect(function()
-		root.CFrame = Desync.op -- CFrame Freeze
+	Desync.freezer = Svc.Run.Heartbeat:Connect(function(delta)
+		if Desync.update then
+			if Desync.reanchorTime == nil then
+				--Player.Character = Desync.origChar -- Restore character
+				root.CFrame = Desync.op -- Move
+				root.Anchored = false -- Unanchor for refresh
+				--Player.Character = Desync.clone
+				--Desync.update = false
+				Desync.reanchorTime = 0.2 -- This is basically a timer to say when to reanchor
+			elseif Desync.reanchorTime > 0 then
+				Desync.reanchorTime = Desync.reanchorTime - delta
+				--print(Desync.reanchorTime)
+			else
+				--print("done")
+				Desync.update = false
+				Desync.reanchorTime = nil
+				root.Anchored = true
+			end
+		end
+		root:PivotTo(Desync.op)-- = Desync.op -- CFrame Freeze
 		if Desync.clone.Parent == nil then
 			if allowCloneRespawn then
 				local cloneRoot = Desync.clone:FindFirstChild("HumanoidRootPart") or Desync.clone.PrimaryPart
@@ -90,6 +110,7 @@ function Desync.start(allowCloneRespawn)
 end
 
 function Desync.setOrigPosition(posOrCFrame)
+	Desync.update = true
 	if typeof(posOrCFrame) == "Vector3" then
 		Desync.op = CFrame.new(pos)
 	else
@@ -97,8 +118,10 @@ function Desync.setOrigPosition(posOrCFrame)
 	end
 end
 
+-- TODO: Fix this. Idk why it doesnt work
 function Desync.moveOrigPosition(vec)
-	Desync.op = CFrame.new(Desync.op + vec)	
+	Desync.update = true
+	Desync.op = CFrame.new(Desync.op.Position + vec)	
 end
 
 function Desync.setOrigTransparency(value)
@@ -163,6 +186,6 @@ function Desync.stop(viaDestroy)
 	Desync.freezer:Disconnect()
 end
 
-_G.RyvoraDesync = _G.RyvoraDesync or Desync
+_G.RyvoraDesync = Desync --_G.RyvoraDesync or Desync
 
 return _G.RyvoraDesync
