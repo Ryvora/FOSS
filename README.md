@@ -1,14 +1,13 @@
 # Ryvora & FOSS
-We at Ryvora create CLOSED COURSE and Obfuscated Scripts.
 
-And this will always stay like this.
+At Ryvora, we specialize in **closed-source, highly obfuscated** scripts. That is our standard, and it always will be.
 
-However, we believe in competition, and fairness.
+However, we believe in fair competition and the enduring value of open knowledge. We embrace the spirit of Free and Open Source Software (FOSS).
 
-And, we still embrace the Perfection of Free and Open Source Software.
+In this repository, you’ll find a collection of **free** scripts for your use.
 
-In this Repository, you can find multiple different Free Scripts that you can use!
+*Attribution: You are not required to credit us, but we certainly appreciate it if you do.*
 
-You don't even need to credit us, however, we do prefer attribution.
+---
 
-## Made With ♥️ By ChipLag @ Ryvora
+**Made With ♥️ By ChipLag @ Ryvora**
