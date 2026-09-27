@@ -7,11 +7,18 @@ local Desync = {
 	op = nil,
 	update = false,
 	reanchorTime = nil,
-		
+	guiParent = Instance.new("Folder", game:GetService("Lighting")),
+
 	transparencies = {
-			
+
+	},
+	
+	collisions = {
+		
 	}
 }
+
+Desync.guiParent.Name = "__RV_DESYNC_GUIS_RVV__"
 
 -- Services
 local Svc = {
@@ -21,26 +28,37 @@ local Svc = {
 }
 local Player = Svc.Players.LocalPlayer
 
+function Desync.backupGuis() 
+	for i,v in pairs(Player.PlayerGui:GetChildren()) do
+		v.Parent = Desync.guiParent
+	end
+end
+
+function Desync.restoreGuis() 
+	for i,v in pairs(Desync.guiParent:GetChildren()) do
+		v.Parent = Player.PlayerGui
+	end
+end
+
 function Desync.start(allowCloneRespawn)
 	local allowCloneRespawn = allowCloneRespawn or true
 	-- Only allow one clone
 	if Desync.clone then return end
 	
+	Desync.backupGuis() 
+
 	local char = Player.Character
 	Desync.origChar = char
-	
+
 	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
 	Desync.op = root.CFrame
 	
 	Desync.freezer = Svc.Run.Heartbeat:Connect(function(delta)
 		if Desync.update then
 			if Desync.reanchorTime == nil then
-				--Player.Character = Desync.origChar -- Restore character
 				root.CFrame = Desync.op -- Move
 				root.Anchored = false -- Unanchor for refresh
-				--Player.Character = Desync.clone
-				--Desync.update = false
-				Desync.reanchorTime = 0.2 -- This is basically a timer to say when to reanchor
+				Desync.reanchorTime = 0.15 -- This is basically a timer to say when to reanchor
 			elseif Desync.reanchorTime > 0 then
 				Desync.reanchorTime = Desync.reanchorTime - delta
 				--print(Desync.reanchorTime)
@@ -55,7 +73,7 @@ function Desync.start(allowCloneRespawn)
 		if Desync.clone.Parent == nil then
 			if allowCloneRespawn then
 				local cloneRoot = Desync.clone:FindFirstChild("HumanoidRootPart") or Desync.clone.PrimaryPart
-				cloneRoot.CFrame = ocf
+				cloneRoot.CFrame = Desync.op
 				Desync.clone.Parent = Svc.Workspace
 			else
 				Desync.stop()
@@ -68,7 +86,7 @@ function Desync.start(allowCloneRespawn)
 			--Desync.start()
 		end
 	end)
-	
+
 	local humanoid = char.Humanoid
 
 	-- Make Archivable so we can clone
@@ -88,7 +106,7 @@ function Desync.start(allowCloneRespawn)
 	root.Anchored = true	
 	root.CanCollide = false
 
-	
+
 	char.Archivable = origArchive
 
 	-- Parent to Workspace and rename
@@ -96,8 +114,21 @@ function Desync.start(allowCloneRespawn)
 	Desync.clone.Name = Desync.clone.Name .. "__RYV__CLONE__DESYNC"
 
 	Svc.Workspace.CurrentCamera.CameraSubject = Desync.clone.Humanoid
+	
+	-- Before setting Character, we save the camera, BECAUSE the camera orientation will otherwise be RESET!
+	local cam = game.Workspace.CurrentCamera
+	local Orient = cam.CFrame
+	
 	Player.Character = Desync.clone
+	
+	-- Reset CFrame on change
+	local conn
+	conn = cam:GetPropertyChangedSignal("CFrame"):Connect(function()
+		conn:Disconnect()
+		cam.CFrame = Orient
+	end)
 
+	
 	Desync.clone.Humanoid.Died:Connect(Desync.stop)
 	Desync.clone.AncestryChanged:Connect(Desync.stop)
 
@@ -107,12 +138,14 @@ function Desync.start(allowCloneRespawn)
 	end)
 
 	Desync.setOrigTransparency(0.999)
+	
+	Desync.restoreGuis() 
 end
 
 function Desync.setOrigPosition(posOrCFrame)
 	Desync.update = true
 	if typeof(posOrCFrame) == "Vector3" then
-		Desync.op = CFrame.new(pos)
+		Desync.op = CFrame.new(posOrCFrame)
 	else
 		Desync.op = posOrCFrame
 	end
@@ -126,7 +159,7 @@ end
 
 function Desync.setOrigTransparency(value)
 	local value = value or 0.5
-	
+
 	local char = Desync.origChar
 	for _, v in pairs(char:GetDescendants()) do
 		if v:IsA("BasePart") or v:IsA("Decal") and v.Name ~= "HumanoidRootPart" then
@@ -154,15 +187,22 @@ function Desync.resetOrigTransparency()
 	end
 end
 
-function Desync.stop(viaDestroy)
+function Desync.stop(goToClone, viaDestroy)
 	Desync.resetOrigTransparency()
+	
+	local goToClone = goToClone or true
 	local viaDestroy = viaDestroy or false
 
 	-- Only run if there is a clone
 	if not Desync.clone then return end
-
+	
+	Desync.backupGuis() 
+	
 	local origChar = Desync.origChar
 	local clone = Desync.clone
+	Desync.freezer:Disconnect()
+	local oprim = (origChar:FindFirstChild("HumanoidRootPart") or origChar.PrimaryPart)
+	oprim.CFrame = (clone:FindFirstChild("HumanoidRootPart") or clone.PrimaryPart).CFrame
 
 	-- Disconnect destroy to not loop forever
 	if Desync.destroyingConn then
@@ -177,13 +217,27 @@ function Desync.stop(viaDestroy)
 	-- Set back to orig Char
 	local origChar = Desync.origChar or Svc.Workspace:FindFirstChild(Player.Name, true) -- Emergency Fallback; try to FIND the original player
 	Svc.Workspace.CurrentCamera.CameraSubject = Desync.origChar.Humanoid
+	
+	-- Before setting Character, we save the camera, BECAUSE the camera orientation will otherwise be RESET!
+	local cam = game.Workspace.CurrentCamera
+	local Orient = cam.CFrame
+
 	Player.Character = Desync.origChar
+
+	-- Reset CFrame on change
+	local conn
+	conn = cam:GetPropertyChangedSignal("CFrame"):Connect(function()
+		conn:Disconnect()
+		cam.CFrame = Orient
+	end)
+	
 	local root = Desync.origChar:FindFirstChild("HumanoidRootPart") or Desync.origChar.PrimaryPart
 	root.Anchored = false
 	root.CanCollide = true
 
 	Desync.desyncHighlight:Destroy()
-	Desync.freezer:Disconnect()
+	
+	Desync.restoreGuis() 
 end
 
 _G.RyvoraDesync = _G.RyvoraDesync or Desync
