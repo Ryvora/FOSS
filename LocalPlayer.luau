@@ -108,7 +108,7 @@ end
 function LocalPlayer.teleport.instant(position)
 	local root = LocalPlayer.getCharacterRoot()
 	if not root then return end
-	local cf = CFrame.new(position) * CFrame.fromOrientation(table.unpack(root.CFrame:ToOrientation()))
+	local cf = CFrame.new(position) * CFrame.fromOrientation(root.CFrame:ToOrientation())
 	root.CFrame = cf
 end
 
