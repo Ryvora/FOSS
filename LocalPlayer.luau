@@ -141,7 +141,7 @@ function LocalPlayer.teleport.tween(position, duration)
 	local hum = LocalPlayer.getHumanoid()
 
 	local startCF = root.CFrame
-	local targetCF = CFrame.new(position) * CFrame.fromOrientation(table.unpack(startCF:ToOrientation()))
+	local targetCF = CFrame.new(position) * startCF.Orientation
 	local startTime = os.clock()
 	local wasAnchored = root.Anchored
 
