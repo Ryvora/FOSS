@@ -240,6 +240,9 @@ function Desync.stop(goToClone, viaDestroy)
 	Desync.restoreGuis() 
 end
 
-_G.RyvoraDesync = _G.RyvoraDesync or Desync
-
-return _G.RyvoraDesync
+if getgenv() then
+	getgenv().Ryvora__Desync = getgenv().Ryvora__Desync or Desync
+	return getgenv().Ryvora__Desync or Desync
+else
+	return LocalPlayer
+end
