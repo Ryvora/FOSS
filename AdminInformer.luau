@@ -169,4 +169,9 @@ local Watchdog = task.spawn(function()
 	end
 end)
 
+if getgenv() then
+	if getgenv().Ryvora__AdminInformer then return getgenv().Ryvora__AdminInformer end
+	getgenv().Ryvora__AdminInformer = AdminInformer
+end
+
 return AdminInformer
