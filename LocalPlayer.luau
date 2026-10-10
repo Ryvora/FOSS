@@ -289,5 +289,9 @@ do
 		end
 	end)
 end
-
-return LocalPlayer
+if getgenv() then
+	getgenv().Ryvora__LocalPlayer = getgenv().Ryvora__LocalPlayer or LocalPlayer
+	return getgenv().Ryvora__LocalPlayer or LocalPlayer
+else
+	return LocalPlayer
+end
