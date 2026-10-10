@@ -20,8 +20,8 @@ local levelColors = {
 
 local uiRoot = gethui()
 
-if _G.RyLog then
-	return _G.RyLog
+if getgenv() and getgenv().RyLog then
+	return getgenv().RyLog
 end
 
 local RyLog = {}
@@ -99,5 +99,7 @@ end
 local Layout = Instance.new("UIListLayout", Gui)
 Layout.Padding = UDim.new(0, 4)
 
-_G.RyLog = RyLog
+if getgenv() then
+	getgenv().RyLog = RyLog
+end
 return RyLog
