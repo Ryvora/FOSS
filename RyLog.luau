@@ -26,6 +26,13 @@ end
 
 local RyLog = {}
 
+
+setmetatable(RyLog, {
+	__tostring = function(self)
+		return "Ryvora Script: RyLog Logging Library"
+	end
+})
+
 local function makeLabel(text: string, parent: Instance, color: Color3)
 	local label = Instance.new("TextLabel", parent)
 	label.Text = text
