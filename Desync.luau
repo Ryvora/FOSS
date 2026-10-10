@@ -18,6 +18,13 @@ local Desync = {
 	}
 }
 
+setmetatable(Desync, {
+	__tostring = function(self)
+		return "Ryvora Script: Local Player Desynchronization Library"
+	end
+})
+
+
 Desync.guiParent.Name = "__RV_DESYNC_GUIS_RVV__"
 
 -- Services
