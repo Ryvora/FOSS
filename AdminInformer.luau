@@ -7,6 +7,12 @@ local Env = if getgenv then getgenv() else _G
 
 local AdminInformer = {}
 
+setmetatable(AdminInformer, {
+	__tostring = function(self)
+		return "Ryvora Script: RyLog Admin Abuse informer"
+	end
+})
+
 local Tools = {
 	ShowFrozen = false,
 	ShowJails = false,
