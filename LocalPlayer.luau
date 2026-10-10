@@ -13,6 +13,12 @@ local LocalPlayer = {
 	SimpleBody = {},
 }
 
+setmetatable(LocalPlayer, {
+	__tostring = function(self)
+		return "Ryvora Script: Local Player access library"
+	end
+})
+
 --=====================================================================
 -- CORE GETTERS
 --=====================================================================
